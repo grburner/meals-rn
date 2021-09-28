@@ -3,7 +3,7 @@ import { Platform } from 'react-native';
 import { createStackNavigator } from 'react-navigation-stack';
 import { createAppContainer } from 'react-navigation';
 import { createBottomTabNavigator } from 'react-navigation-tabs';
-import { createDrawerNavigator } from 'react-navigation-drawer'
+import { createDrawerNavigator } from 'react-navigation-drawer';
 import { Ionicons } from '@expo/vector-icons';
 
 import CategoriesScreen from '../screens/CategoriesScreen';
@@ -15,12 +15,17 @@ import Color from '../constants/Colors';
 import { Colors } from 'react-native/Libraries/NewAppScreen';
 
 const defaultStackNavOptions = {
-    headerStyle: {
-      backgroundColor:
-        Platform.OS === 'android' ? Color.primaryColor : 'white',
-    },
-    headerTintColor: Platform.OS === 'android' ? 'white' : Color.primaryColor,
-}
+  headerStyle: {
+    backgroundColor: Platform.OS === 'android' ? Color.primaryColor : 'white',
+  },
+  headerTitleStyle: {
+    fontFamily: 'open-sans-bold'
+  },
+  headerBackTitleStyle: {
+    fontFamily: 'open-sans'
+  },
+  headerTintColor: Platform.OS === 'android' ? 'white' : Color.primaryColor,
+};
 
 const MealsNavigator = createStackNavigator(
   {
@@ -79,13 +84,31 @@ const MealsFavTabNavigator = createBottomTabNavigator(
   }
 );
 
-const FiltersNavigator = createStackNavigator({
-  Filters: FiltersScreen
-});
+const FiltersNavigator = createStackNavigator(
+  {
+    Filters: FiltersScreen,
+  },
+  {
+    defaultNavigationOptions: defaultStackNavOptions,
+  }
+);
 
-// const MainNavigator = createDrawerNavigator({
-//   MealsFavs: MealsFavTabNavigator,
-//   Filters: FiltersNavigator
-// });
+const MainNavigator = createDrawerNavigator(
+  {
+    MealsFavs: {
+      screen: MealsFavTabNavigator,
+      navigationOptions: { drawerLabel: 'Meals' },
+    },
+    Filters: FiltersNavigator,
+  },
+  {
+    contentOptions: {
+      activeTintColor: Colors.primaryColor,
+      labelStyle: {
+        fontFamily: 'open-sans-bold'
+      }
+    },
+  }
+);
 
-export default createAppContainer(FiltersNavigator);
+export default createAppContainer(MainNavigator);
