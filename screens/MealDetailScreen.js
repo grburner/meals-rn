@@ -1,27 +1,31 @@
-import React from 'react';
-import {
-  ScrollView,
-  View,
-  Text,
-  Image,
-  Button,
-  StyleSheet,
-} from 'react-native';
+import React, { useEffect, useCallback } from 'react';
+import { ScrollView, View, Text, Image, StyleSheet } from 'react-native';
 import { HeaderButtons, Item } from 'react-navigation-header-buttons';
-
-import { MEALS } from '../data/dummy-data';
+import { useSelector, useDispatch } from 'react-redux';
 import HeaderButton from '../components/HeaderButton';
 import DefaultText from '../components/DefaultText';
+import { toggleFavorite } from '../store/actions/meals';
 
 const MealDetailScreen = (props) => {
+  const availableMeals = useSelector((state) => state.meals.meals);
   const mealId = props.navigation.getParam('mealId');
 
-  const matchedMeal = MEALS.filter((meal) => meal.id === mealId);
-  console.log(matchedMeal)
+  const matchedMeal = availableMeals.filter((meal) => meal.id === mealId);
+
+  const dispatch = useDispatch();
+
+  const toggleFavoriteHandler = useCallback(() => {
+    console.log('togggle favs');
+    dispatch(toggleFavorite(mealId));
+  }, [dispatch, mealId]);
+
+  useEffect(() => {
+    props.navigation.setParams({ toggleFav: toggleFavoriteHandler });
+  }, [toggleFavoriteHandler]);
 
   return (
     <ScrollView>
-      <Image source={{uri: matchedMeal[0].imageUrl}} style={styles.image} />
+      <Image source={{ uri: matchedMeal[0].imageUrl }} style={styles.image} />
       <View style={styles.details}>
         <DefaultText>{matchedMeal[0].duration}m</DefaultText>
         <DefaultText>{matchedMeal[0].complexity.toUpperCase()}</DefaultText>
@@ -37,19 +41,14 @@ const MealDetailScreen = (props) => {
 
 MealDetailScreen.navigationOptions = (navigationData) => {
   const mealId = navigationData.navigation.getParam('mealId');
-  const matchedMeal = MEALS.filter((meal) => meal.id === mealId);
+  const toggleFavorite = navigationData.navigation.getParam('toggleFav');
+  const mealTitle = navigationData.navigation.getParam('mealTitle');
 
   return {
-    headerTitle: matchedMeal[0].title,
+    headerTitle: mealTitle,
     headerRight: (
       <HeaderButtons HeaderButtonComponent={HeaderButton}>
-        <Item
-          title="Favorite"
-          iconName="ios-star"
-          onPress={() => {
-            console.log('mark as favorite');
-          }}
-        />
+        <Item title="Favorite" iconName="ios-star" onPress={toggleFavorite} />
       </HeaderButtons>
     ),
   };
@@ -63,8 +62,8 @@ const styles = StyleSheet.create({
   details: {
     flexDirection: 'row',
     padding: 15,
-    justifyContent: 'space-around'
-  }
+    justifyContent: 'space-around',
+  },
 });
 
 export default MealDetailScreen;
